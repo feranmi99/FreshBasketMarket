@@ -20,7 +20,7 @@ export default function AdminPage() {
   const updateProductMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: number; updates: Partial<Product> }) => {
       const res = await apiRequest("PATCH", `/api/products/${id}`, updates);
-      return res.json();
+      return res
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });

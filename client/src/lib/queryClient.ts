@@ -1,51 +1,122 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
+// import baseUrl from "@/BaseUrl";
+// import { QueryClient } from "@tanstack/react-query";
+// import axios from "axios";
 
-async function throwIfResNotOk(res: Response) {
-  if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
-  }
-}
+// // Create an Axios instance
+// const apiClient = axios.create({
+//   baseURL: baseUrl,
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+//   // withCredentials: true,
+// });
 
-export async function apiRequest(
-  method: string,
-  url: string,
-  data?: unknown | undefined,
-): Promise<Response> {
-  const res = await fetch(url, {
-    method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
+// export async function apiRequest<T>(
+//   method: "GET" | "POST" | "PUT" | "DELETE",
+//   url: string,
+//   data?: unknown
+// ): Promise<T> {
+//   const token = localStorage.getItem("token"); // Get token from storage
 
-  await throwIfResNotOk(res);
-  return res;
-}
+//   const response = await apiClient.request<T>({
+//     method,
+//     url,
+//     data,
+//   });
+//   return response.data;
+// }
 
-type UnauthorizedBehavior = "returnNull" | "throw";
-export const getQueryFn: <T>(options: {
-  on401: UnauthorizedBehavior;
-}) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
-    });
+// // Simplified queryClient setup
+// export const queryClient = new QueryClient({
+//   defaultOptions: {
+//     queries: {
+//       queryFn: async ({ queryKey }) => {
+//         try {
+//           const { data } = await apiClient.get(queryKey[0] as string);
+//           return data;
+//         } catch (error: any) {
+//           if (error.response?.status === 401) {
+//             throw new Error("Unauthorized");
+//           }
+//           throw new Error(error.message || "An error occurred");
+//         }
+//       },
+//       refetchOnWindowFocus: false,
+//       staleTime: Infinity,
+//       retry: false,
+//     },
+//     mutations: {
+//       retry: false,
+//     },
+//   },
+// });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+
+import baseUrl from "@/BaseUrl";
+import { QueryClient } from "@tanstack/react-query";
+import axios from "axios";
+
+// Create Axios instance
+const apiClient = axios.create({
+  baseURL: baseUrl,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// ✅ Automatically attach token to all requests
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-    await throwIfResNotOk(res);
-    return await res.json();
-  };
+// ✅ Auto logout if token is invalid
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token"); // Remove token
+      queryClient.setQueryData(["/api/user"], null); // Clear user state
+      window.location.href = "/login"; // Redirect to login page
+    }
+    return Promise.reject(error);
+  }
+);
 
+export async function apiRequest<T>(
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+  url: string,
+  data?: unknown
+): Promise<T> {
+  const response = await apiClient.request<T>({
+    method,
+    url,
+    data,
+  });
+  return response.data;
+}
+
+// ✅ Global QueryClient setup
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: false,
+      queryFn: async ({ queryKey }) => {
+        try {
+          const { data } = await apiClient.get(queryKey[0] as string);
+          return data;
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            throw new Error("Unauthorized");
+          }
+          throw new Error(error.message || "An error occurred");
+        }
+      },
       refetchOnWindowFocus: false,
       staleTime: Infinity,
       retry: false,

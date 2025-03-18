@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { insertUserSchema } from "@shared/schema";
+import { insertUserSchema, loginUserSchema } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
@@ -26,9 +26,9 @@ export default function AuthPage() {
   }
 
   const loginForm = useForm({
-    resolver: zodResolver(insertUserSchema),
+    resolver: zodResolver(loginUserSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -36,7 +36,9 @@ export default function AuthPage() {
   const registerForm = useForm({
     resolver: zodResolver(insertUserSchema),
     defaultValues: {
-      username: "",
+      full_name: "",
+      email: "",
+      phone: "",
       password: "",
     },
   });
@@ -78,10 +80,10 @@ export default function AuthPage() {
                 >
                   <FormField
                     control={loginForm.control}
-                    name="username"
+                    name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <Label>Username</Label>
+                        <Label>Email</Label>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -125,10 +127,36 @@ export default function AuthPage() {
                 >
                   <FormField
                     control={registerForm.control}
-                    name="username"
+                    name="full_name"
                     render={({ field }) => (
                       <FormItem>
-                        <Label>Username</Label>
+                        <Label>Full name</Label>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={registerForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Email</Label>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={registerForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Label>Phone number</Label>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>

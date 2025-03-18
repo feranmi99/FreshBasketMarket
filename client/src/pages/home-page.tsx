@@ -2,10 +2,21 @@ import { useQuery } from "@tanstack/react-query";
 import { Product } from "@shared/schema";
 import { ProductCard } from "@/components/ProductCard";
 import { Loader2 } from "lucide-react";
+import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function HomePage() {
+
+  const { user, loginMutation, registerMutation } = useAuth();
+  const [, setLocation] = useLocation();
+
+  if (!user) {
+    setLocation("/auth");
+    return null;
+  }
+
   const { data: products, isLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+    queryKey: ["products"],
   });
 
   if (isLoading) {
@@ -28,7 +39,7 @@ export default function HomePage() {
 
       <section>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products?.map((product) => (
+          {products?.data?.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

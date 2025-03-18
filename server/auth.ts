@@ -42,8 +42,8 @@ export function setupAuth(app: Express) {
   app.use(passport.session());
 
   passport.use(
-    new LocalStrategy(async (username, password, done) => {
-      const user = await storage.getUserByUsername(username);
+    new LocalStrategy(async (full_name, password, done) => {
+      const user = await storage.getUserByfull_name(full_name);
       if (!user || !(await comparePasswords(password, user.password))) {
         return done(null, false);
       } else {
@@ -59,20 +59,20 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/register", async (req, res, next) => {
-    const existingUser = await storage.getUserByUsername(req.body.username);
-    if (existingUser) {
-      return res.status(400).send("Username already exists");
-    }
+    const existingUser = await storage.getUserByfull_name(req.body.full_name);
+    // if (existingUser) {
+      return res.status(400).send(res);
+    // }
 
-    const user = await storage.createUser({
-      ...req.body,
-      password: await hashPassword(req.body.password),
-    });
+    // const user = await storage.createUser({
+    //   ...req.body,
+    //   password: await hashPassword(req.body.password),
+    // });
 
-    req.login(user, (err) => {
-      if (err) return next(err);
-      res.status(201).json(user);
-    });
+    // req.login(user, (err) => {
+    //   if (err) return next(err);
+    //   res.status(201).json(user);
+    // });
   });
 
   app.post("/api/login", passport.authenticate("local"), (req, res) => {
