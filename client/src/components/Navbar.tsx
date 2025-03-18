@@ -11,28 +11,30 @@ export function Navbar() {
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <nav className="border-b bg-card">
+    <div className="text max-w-[1440px] mx-auto w-full">
+
+    <nav className="border-b bg-card ">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/">
-          <a className="text-2xl font-bold text-primary">FreshMart</a>
+          <a className="text-3xl font-bold text-primary italic">Food-pile</a>
         </Link>
 
         <div className="flex items-center space-x-4">
-          <Link href="/contact">
+          {/* <Link href="/contact">
             <a className="text-muted-foreground hover:text-foreground">Contact</a>
-          </Link>
+          </Link> */}
 
           {user ? (
             <>
               <Link href="/cart">
-                <a className="relative">
+                <div className="relative">
                   <ShoppingCart className="h-6 w-6" />
                   {totalItems > 0 && (
                     <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
                       {totalItems}
                     </span>
                   )}
-                </a>
+                </div>
               </Link>
 
               {user.isAdmin && (
@@ -44,6 +46,7 @@ export function Navbar() {
               )}
 
               <Button
+              className="border"
                 variant="ghost"
                 size="sm"
                 onClick={() => logoutMutation.mutate()}
@@ -63,5 +66,6 @@ export function Navbar() {
         </div>
       </div>
     </nav>
+          </div>
   );
 }
