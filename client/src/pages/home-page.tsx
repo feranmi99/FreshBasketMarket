@@ -28,7 +28,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full max-w-[1440px] mx-auto">
       <section className="text-center">
         <h1 className="text-4xl font-bold">Fresh Groceries Delivered</h1>
         <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
@@ -38,9 +38,9 @@ export default function HomePage() {
       </section>
 
       <section>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products?.data?.map((product) => (
-            <ProductCard key={product.id} product={product} />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products?.data?.map((product, index) => (
+            <ProductCard key={index}  product={product} />
           ))}
         </div>
       </section>

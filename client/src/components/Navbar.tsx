@@ -15,8 +15,8 @@ export function Navbar() {
 
     <nav className="border-b bg-card ">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/">
-          <a className="text-3xl font-bold text-primary italic">Food-pile</a>
+        <Link className="text-3xl font-bold text-primary italic" href="/">
+          Food-pile
         </Link>
 
         <div className="flex items-center space-x-4">
@@ -28,7 +28,7 @@ export function Navbar() {
             <>
               <Link href="/cart">
                 <div className="relative">
-                  <ShoppingCart className="h-6 w-6" />
+                  <ShoppingCart className="h-7 w-7" />
                   {totalItems > 0 && (
                     <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
                       {totalItems}

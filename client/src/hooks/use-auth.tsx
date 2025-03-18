@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Login Successful",
         description: "Welcome back! 🖐️",
       });
-      navigate("/"); // ✅ Navigates only on successful login
+      // navigate("/");
     },
     onError: (error: Error) => {
       toast({

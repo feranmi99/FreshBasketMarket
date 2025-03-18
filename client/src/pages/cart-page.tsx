@@ -19,10 +19,10 @@ export default function CartPage() {
   const [recurringDays, setRecurringDays] = useState<number | "">("");
 
   const { data: landmarks, isLoading: isLoadingLandmarks } = useQuery<Landmark[]>({
-    queryKey: ["/api/landmarks"],
+    queryKey: ["landmarks"],
   });
 
-  const selectedLandmark = landmarks?.find((l) => l.id === Number(landmarkId));
+  const selectedLandmark = landmarks?.data?.find((l) => l.id === Number(landmarkId));
   const totalWithDelivery = total + (selectedLandmark ? Number(selectedLandmark.deliveryFee) : 0);
 
   const orderMutation = useMutation({
@@ -127,10 +127,10 @@ export default function CartPage() {
                   <SelectValue placeholder="Select a landmark" />
                 </SelectTrigger>
                 <SelectContent>
-                  {landmarks?.map((landmark) => (
+                  {landmarks?.data?.map((landmark) => (
                     <SelectItem
                       key={landmark.id}
-                      value={landmark.id.toString()}
+                      value={landmark.id}
                     >
                       {landmark.name} (${landmark.deliveryFee})
                     </SelectItem>

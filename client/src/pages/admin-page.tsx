@@ -14,16 +14,16 @@ export default function AdminPage() {
   const { toast } = useToast();
 
   const { data: products, isLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+    queryKey: ["products"],
   });
 
   const updateProductMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: number; updates: Partial<Product> }) => {
-      const res = await apiRequest("PATCH", `/api/products/${id}`, updates);
+      const res = await apiRequest("PATCH", `products/${id}`, updates);
       return res
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       toast({
         title: "Success",
         description: "Product updated successfully",
@@ -31,10 +31,10 @@ export default function AdminPage() {
     },
   });
 
-  if (!user?.isAdmin) {
-    setLocation("/");
-    return null;
-  }
+  // if (!user?.isAdmin) {
+  //   setLocation("/");
+  //   return null;
+  // }
 
   if (isLoading) {
     return (
@@ -61,7 +61,7 @@ export default function AdminPage() {
               </tr>
             </thead>
             <tbody>
-              {products?.map((product) => (
+              {products?.data?.map((product) => (
                 <tr key={product.id} className="border-b last:border-0">
                   <td className="py-4">
                     <div className="flex items-center gap-3">
