@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-// import { Product } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +25,7 @@ export default function AdminPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const { data: products, isLoading } = useQuery<Product[]>({
+  const { data: products, isLoading } = useQuery<any>({
     queryKey: ["products"],
   });
 
@@ -42,7 +41,7 @@ export default function AdminPage() {
   });
 
   const updateProductMutation = useMutation({
-    mutationFn: async ({ id, updates }: { id: number; updates: Partial<Product> }) => {
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Product> }) => {
       const res = await apiRequest("PATCH", `products/${id}`, updates);
       return res;
     },

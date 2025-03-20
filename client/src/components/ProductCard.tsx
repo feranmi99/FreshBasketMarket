@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Product } from "@shared/schema";
 import { useCart } from "./CartContext";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
@@ -7,6 +6,8 @@ import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import commaNumber from "comma-number";
+import { Product } from "@/types/Auth";
 
 
 interface ProductCardProps {
@@ -48,7 +49,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.description}
           </p>
           <div className="mt-2 flex items-center justify-between">
-            <span className="text-lg font-bold">${product.price}</span>
+            <span className="text-lg font-bold">₦{commaNumber(product.price)}</span>
             <span className="text-sm text-muted-foreground">
               Min: {product.minOrder}
             </span>
@@ -123,7 +124,7 @@ const Modal = ({ product, isModalOpen, setIsModalOpen }: ModalProps) => {
           <DialogTitle>{product.name}</DialogTitle>
           <DialogDescription>{product.description}</DialogDescription>
         </DialogHeader>
-        <img src={product.imageUrl} alt={product.name} className="rounded-lg w-full" />
+        <img src={product.image} alt={product.name} className="rounded-lg w-full" />
         <div className="mt-2 flex items-center justify-between">
           <span className="text-lg font-bold">${product.price}</span>
           <span className="text-sm text-muted-foreground">Min: {product.minOrder}</span>

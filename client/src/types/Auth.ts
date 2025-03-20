@@ -7,17 +7,18 @@ export interface User {
 }
 
 export interface Product {
+    _id: string;
     id: string | number;
-    name?: string;
+    name: string;
     description?: string;
-    price?: number | string;
-    image?: string;
-    minOrder?: number;
-    inStock?: boolean;
+    price: number | string;
+    image: string;
+    minOrder: number;
+    inStock: boolean;
 }
 
 export interface Landmark {
-    id: number;
+    id: number | string;
     name: string;
     deliveryFee: number;
 }

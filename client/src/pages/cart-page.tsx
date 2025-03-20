@@ -11,33 +11,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import commaNumber from "comma-number";
+import { LandmarkResponse } from "@/types/Product";
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, total, clearCart } = useCart();
   const { toast } = useToast();
   const [address, setAddress] = useState("");
   const [landmarkId, setLandmarkId] = useState("");
+  const [deleveryType, setDeleveryType] = useState("");
   const [recurringDays, setRecurringDays] = useState<number | "">("");
 
-  const { data: landmarks, isLoading: isLoadingLandmarks } = useQuery<Landmark[]>({
+  const { data: landmarks, isLoading: isLoadingLandmarks } = useQuery<LandmarkResponse>({
     queryKey: ["landmarks"],
   });
-
-  console.log(items);
-
 
   const selectedLandmark = landmarks?.data?.find((l: any) => l.id === Number(landmarkId));
   const totalWithDelivery = total + (selectedLandmark ? Number(selectedLandmark.deliveryFee) : 0);
 
   const orderMutation = useMutation({
     mutationFn: async () => {
-      if (!landmarkId || !address) {
+      if (!landmarkId || !address || !deleveryType) {
         throw new Error("Please fill in all required fields");
       }
 
       const orderData = {
         landmarkId: Number(landmarkId),
         address,
+        deleveryType,
         total: totalWithDelivery,
         recurringDays: recurringDays || null,
         items: items.map((item) => ({
@@ -95,7 +95,7 @@ export default function CartPage() {
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="w-12 text-center">{item.quantity}</span>
+                  <span className="w-10 text-center">{item.quantity}</span>
                   <Button
                     variant="outline"
                     size="icon"
@@ -146,11 +146,11 @@ export default function CartPage() {
             <div>
               <Label>Delivery type</Label>
               <Select
-                // value={landmarkId}
-                // onValueChange={setLandmarkId}
+                value={deleveryType}
+                onValueChange={setDeleveryType}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a landmark" />
+                  <SelectValue placeholder="Select a delevery type" />
                 </SelectTrigger>
                 <SelectContent>
                   {["Delivery", "Pick up"]?.map((deleveryType) => (
@@ -204,7 +204,7 @@ export default function CartPage() {
             <Button
               className="w-full"
               onClick={() => orderMutation.mutate()}
-              disabled={orderMutation.isPending || !landmarkId || !address}
+              disabled={orderMutation.isPending || !landmarkId || !address || !deleveryType}
             >
               {orderMutation.isPending ? (
                 <>
