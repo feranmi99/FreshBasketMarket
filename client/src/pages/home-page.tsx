@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { ProductResponse } from "@/types/Product";
 
 export default function HomePage() {
 
@@ -15,7 +16,7 @@ export default function HomePage() {
     return null;
   }
 
-  const { data: products, isLoading } = useQuery<Product[]>({
+  const { data: products, isLoading } = useQuery<ProductResponse>({
     queryKey: ["products"],
   });
 

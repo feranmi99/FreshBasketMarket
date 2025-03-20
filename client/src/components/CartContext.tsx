@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { Product } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Product } from "@/types/Auth";
 
 interface CartItem {
   _id: string;
@@ -10,6 +10,7 @@ interface CartItem {
   name: string;
   image: string;
   price: number;
+  minOrder: number;
   quantity: number;
   status: "Pending" | "Completed" | "Cancelled";
   user: string;
@@ -43,7 +44,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const items = data?.data || [];
+  const items: CartItem[] = data?.data || [];
 
   const addProductMutation = useMutation({
     mutationFn: async ({ item, quantity }: { item: Product; quantity: number }) => {
