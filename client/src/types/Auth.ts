@@ -7,13 +7,13 @@ export interface User {
 }
 
 export interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    imageUrl: string;
-    minOrder: number;
-    inStock: boolean;
+    id: string | number;
+    name?: string;
+    description?: string;
+    price?: number | string;
+    image?: string;
+    minOrder?: number;
+    inStock?: boolean;
 }
 
 export interface Landmark {

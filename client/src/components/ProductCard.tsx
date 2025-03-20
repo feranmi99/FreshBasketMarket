@@ -18,7 +18,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleQuantityChange = (value: number) => {
+  const handleQuantityChange = (value: number) => {    
     setQuantity(Math.max(value, product.minOrder));
   };
 
@@ -26,10 +26,10 @@ export function ProductCard({ product }: ProductCardProps) {
     <>
       <Card
         // onClick={() => setIsModalOpen(true)} 
-        className="overflow-hidden cursor-pointer">
+        className="overflow-hidden cursor-pointer max-w-[400px] mx-auto">
         <div className="aspect-square relative">
           <img
-            src={product.imageUrl}
+            src={product.image}
             alt={product.name}
             className="object-cover w-full h-full"
           />
@@ -61,7 +61,7 @@ export function ProductCard({ product }: ProductCardProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleQuantityChange(quantity - 1)}
+                onClick={() => handleQuantityChange(Number(quantity) - 1)}
                 disabled={quantity <= product.minOrder}
               >
                 <Minus className="h-4 w-4" />
@@ -76,7 +76,7 @@ export function ProductCard({ product }: ProductCardProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleQuantityChange(quantity + 1)}
+                onClick={() => handleQuantityChange(Number(quantity) + 1)}
               >
                 <Plus className="h-4 w-4" />
               </Button>
