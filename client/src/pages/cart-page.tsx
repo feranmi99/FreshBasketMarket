@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
+import commaNumber from "comma-number";
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, total, clearCart } = useCart();
@@ -22,7 +23,10 @@ export default function CartPage() {
     queryKey: ["landmarks"],
   });
 
-  const selectedLandmark = landmarks?.data?.find((l) => l.id === Number(landmarkId));
+  console.log(items);
+
+
+  const selectedLandmark = landmarks?.data?.find((l: any) => l.id === Number(landmarkId));
   const totalWithDelivery = total + (selectedLandmark ? Number(selectedLandmark.deliveryFee) : 0);
 
   const orderMutation = useMutation({
@@ -37,9 +41,9 @@ export default function CartPage() {
         total: totalWithDelivery,
         recurringDays: recurringDays || null,
         items: items.map((item) => ({
-          productId: item.product.id,
+          productId: item.id,
           quantity: item.quantity,
-          price: item.product.price,
+          price: item.price,
         })),
       };
 
@@ -70,24 +74,24 @@ export default function CartPage() {
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">
           {items.map((item) => (
-            <Card key={item.product.id}>
+            <Card key={item?.id}>
               <CardContent className="p-4 flex items-center gap-4">
                 <img
-                  src={item.product.imageUrl}
-                  alt={item.product.name}
+                  src={item?.image}
+                  alt={item?.name}
                   className="w-20 h-20 object-cover rounded"
                 />
                 <div className="flex-1">
-                  <h3 className="font-semibold">{item.product.name}</h3>
+                  <h3 className="font-semibold">{item?.name}</h3>
                   <p className="text-sm text-muted-foreground">
-                    ${item.product.price} × {item.quantity}
+                    ₦{commaNumber(item?.price)} × {item?.quantity}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                    onClick={() => updateQuantity(item._id, Number(item.quantity) - 1)}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -95,14 +99,14 @@ export default function CartPage() {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                    onClick={() => updateQuantity(item._id, Number(item.quantity) + 1)}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="destructive"
                     size="icon"
-                    onClick={() => removeFromCart(item.product.id)}
+                    onClick={() => removeFromCart(item._id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -132,7 +136,29 @@ export default function CartPage() {
                       key={landmark.id}
                       value={landmark.id}
                     >
-                      {landmark.name} (${landmark.deliveryFee})
+                      {landmark.name} (₦{commaNumber(landmark.deliveryFee)})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Delivery type</Label>
+              <Select
+                // value={landmarkId}
+                // onValueChange={setLandmarkId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a landmark" />
+                </SelectTrigger>
+                <SelectContent>
+                  {["Delivery", "Pick up"]?.map((deleveryType) => (
+                    <SelectItem
+                      key={deleveryType}
+                      value={deleveryType}
+                    >
+                      {deleveryType}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -162,15 +188,15 @@ export default function CartPage() {
             <div className="border-t pt-4">
               <div className="flex justify-between mb-2">
                 <span>Subtotal</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₦{commaNumber(total.toFixed(2))}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span>Delivery Fee</span>
-                <span>${selectedLandmark?.deliveryFee || "0.00"}</span>
+                <span>₦{commaNumber(selectedLandmark?.deliveryFee) || "0.00"}</span>
               </div>
               <div className="flex justify-between font-bold">
                 <span>Total</span>
-                <span>${totalWithDelivery.toFixed(2)}</span>
+                <span>₦{commaNumber(totalWithDelivery.toFixed(2))}</span>
               </div>
             </div>
           </CardContent>

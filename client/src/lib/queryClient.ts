@@ -81,9 +81,9 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("token"); // Remove token
-      queryClient.setQueryData(["/api/user"], null); // Clear user state
-      window.location.href = "/login"; // Redirect to login page
+      localStorage.removeItem("token"); 
+      queryClient.setQueryData(["/api/user"], null); 
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }

@@ -1,17 +1,28 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { Product } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 interface CartItem {
-  product: Product;
+  _id: string;
+  id: string;
+  name: string;
+  image: string;
+  price: number;
   quantity: number;
+  status: "Pending" | "Completed" | "Cancelled";
+  user: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 interface CartContextType {
   items: CartItem[];
   addToCart: (product: Product, quantity: number) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   total: number;
 }
@@ -19,10 +30,43 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
   const { toast } = useToast();
 
-  const addToCart = (product: Product, quantity: number) => {
+  const {
+    data,
+    error,
+    isLoading
+  } = useQuery<any | null, Error>({
+    queryKey: ["cart"],
+    queryFn: async () => {
+      return await apiRequest<any>("GET", "cart");
+    },
+  });
+
+  const items = data?.data || [];
+
+  const addProductMutation = useMutation({
+    mutationFn: async ({ item, quantity }: { item: Product; quantity: number }) => {
+      return await apiRequest("POST", "cart", { item, quantity });
+    },
+    onSuccess: (response: any) => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast({
+        title: "Added to cart",
+        description: `Product added successfully`,
+      });
+    },
+    onError: (error) => {
+      console.error("Error adding to cart:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add product to cart",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const addToCart = async (product: Product, quantity: number) => {
     if (quantity < product.minOrder) {
       toast({
         title: "Invalid quantity",
@@ -31,38 +75,56 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
       return;
     }
+    addProductMutation.mutate({ item: product, quantity });
+  };
+  const deleteItemMutation = useMutation({
+    mutationFn: async ({ productId }: { productId: string }) => {
+      return await apiRequest("DELETE", `deleteItem/${productId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast({
+        title: "Success",
+        description: "Product deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete product quantity",
+        variant: "destructive",
+      });
+    },
+  });
 
-    setItems((currentItems) => {
-      const existingItem = currentItems.find(
-        (item) => item.product.id === product.id
-      );
-
-      if (existingItem) {
-        return currentItems.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-
-      return [...currentItems, { product, quantity }];
-    });
-
-    toast({
-      title: "Added to cart",
-      description: `${quantity} ${product.name} added to cart`,
-    });
+  const removeFromCart = (productId: string) => {
+    deleteItemMutation.mutate({ productId });
   };
 
-  const removeFromCart = (productId: number) => {
-    setItems((currentItems) =>
-      currentItems.filter((item) => item.product.id !== productId)
-    );
-  };
+  const updateQuantityMutation = useMutation({
+    mutationFn: async ({ productId, quantity }: { productId: string; quantity: number }) => {
+      return await apiRequest("PATCH", `updateQuantity/${productId}`, { quantity });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast({
+        title: "Success",
+        description: "Product updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update product quantity",
+        variant: "destructive",
+      });
+      console.error("Error updating product:", error);
+    },
+  });
 
-  const updateQuantity = (productId: number, quantity: number) => {
-    const product = items.find((item) => item.product.id === productId)?.product;
-    
+  const updateQuantity = (productId: string, quantity: number) => {
+    const product = items.find((item: any) => item._id === productId);
+
     if (product && quantity < product.minOrder) {
       toast({
         title: "Invalid quantity",
@@ -71,22 +133,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
       return;
     }
-
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
-      )
-    );
+    // console.log(product);
+    updateQuantityMutation.mutate({ productId, quantity });
   };
 
   const clearCart = () => {
-    setItems([]);
+    // setItems([]);
   };
 
-  const total = items.reduce(
-    (sum, item) => sum + Number(item.product.price) * item.quantity,
-    0
-  );
+  const total = items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
 
   return (
     <CartContext.Provider
